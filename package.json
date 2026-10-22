@@ -1,0 +1,14 @@
+{
+  "name": "last-light-tower-defense",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5178 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5178 --strictPort",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": { "phaser": "3.90.0" },
+  "devDependencies": { "typescript": "~5.9.3", "vite": "^8.3.5", "tsx": "^4.20.6" }
+}
