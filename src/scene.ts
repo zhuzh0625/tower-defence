@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BASE, BUILD_RADIUS, CELL, COLS, ROWS, WIDTH, HEIGHT, TERRAIN, TOWERS, ENEMIES, WAVES, center, key, type TowerKind, type Side } from './data';
 import { GameEngine, stats } from './engine';
+import { BUILDING_RADIUS, towerVisualScale } from './building-visuals';
 
 export interface Selection { kind: TowerKind | null; towerId: number | null }
 export class BoardScene extends Phaser.Scene {
@@ -86,13 +87,14 @@ export class BoardScene extends Phaser.Scene {
       const position = center(selected.col, selected.row);
       g.fillStyle(TOWERS[selected.kind].color, 0.06); g.fillCircle(position.x, position.y, stats(selected).range * CELL);
       g.lineStyle(1, TOWERS[selected.kind].color, 0.35); g.strokeCircle(position.x, position.y, stats(selected).range * CELL);
-      g.lineStyle(2, 0xeaf1cf, 0.8); g.strokeRoundedRect(position.x - 19, position.y - 19, 38, 38, 5);
+      const halfSize = 19 * towerVisualScale(selected.kind);
+      g.lineStyle(2, 0xeaf1cf, 0.8); g.strokeRoundedRect(position.x - halfSize, position.y - halfSize, halfSize * 2, halfSize * 2, 5);
     }
     const wave = WAVES[Math.min(this.model.phase === 'planning' ? this.model.wave : this.model.wave - 1, 4)];
     for (const side of wave?.sides ?? []) this.spawnMarker(side, this.model.phase === 'combat');
     // Base platform, generator and revolving radar sweep.
     g.fillStyle(0x071d19, 0.55); g.fillEllipse(base.x + 3, base.y + 13, 65, 42);
-    g.lineStyle(2, 0x89b499, 0.55); g.fillStyle(0x416356); this.polygon(g, base.x, base.y, 30, 6, Math.PI / 6);
+    g.lineStyle(2, 0x89b499, 0.55); g.fillStyle(0x416356); this.polygon(g, base.x, base.y, BUILDING_RADIUS.base, 6, Math.PI / 6);
     g.lineStyle(2, 0xc4d9b5, 0.75); g.fillStyle(0x203f37); this.polygon(g, base.x, base.y, 23, 6, Math.PI / 6);
     g.fillStyle(0xa7d6b0, 0.08 + Math.sin(this.visualTime * 2) * 0.025); g.fillCircle(base.x, base.y, 48);
     g.lineStyle(3, 0xa4cdae, 0.4); g.beginPath(); g.arc(base.x, base.y, 36, this.visualTime * 0.3, this.visualTime * 0.3 + 1.1); g.strokePath();
@@ -101,7 +103,7 @@ export class BoardScene extends Phaser.Scene {
     this.healthBar(base.x, base.y + 39, 52, this.model.baseHp / this.model.maxBaseHp, 0xbce8c2);
     for (const tower of this.model.towers) {
       this.turret(center(tower.col, tower.row).x, center(tower.col, tower.row).y, tower.kind, tower.angle, tower.level, 1, tower.recoil);
-      if (tower.hp < stats(tower).hp || tower.id === this.selection.towerId) { const p = center(tower.col, tower.row); this.healthBar(p.x, p.y + 23, 30, tower.hp / stats(tower).hp, 0xb5d7b8); }
+      if (tower.hp < stats(tower).hp || tower.id === this.selection.towerId) { const p = center(tower.col, tower.row), scale = towerVisualScale(tower.kind); this.healthBar(p.x, p.y + 23 * scale, 30 * scale, tower.hp / stats(tower).hp, 0xb5d7b8); }
     }
     for (const enemy of this.model.enemies) {
       const info = ENEMIES[enemy.kind];
@@ -144,6 +146,8 @@ export class BoardScene extends Phaser.Scene {
   }
   private turret(x: number, y: number, kind: TowerKind, angle: number, level: number, alpha: number, recoil: number) {
     const g = this.ink, color = TOWERS[kind].color;
+    g.save(); g.translateCanvas(x, y); g.scaleCanvas(towerVisualScale(kind), towerVisualScale(kind));
+    x = 0; y = 0;
     g.fillStyle(0x09251e, 0.55 * alpha); g.fillEllipse(x + 3, y + 10, 35, 24);
     g.lineStyle(2, 0x6c8b78, alpha); g.fillStyle(0x2c5043, alpha); this.polygon(g, x, y, 17, 6, Math.PI / 6);
     g.lineStyle(1, color, alpha * 0.55); g.fillStyle(0x426555, alpha); g.fillCircle(x, y, 12); g.strokeCircle(x, y, 12);
@@ -157,6 +161,7 @@ export class BoardScene extends Phaser.Scene {
     g.fillStyle(color, alpha); g.fillCircle(x, y, kind === 'rapid' ? 6 : 8);
     g.fillStyle(0x264f3b, alpha); g.fillCircle(x, y, 3);
     for (let i = 0; i < level; i++) { g.fillStyle(color, alpha); g.fillCircle(x - (level - 1) * 3 + i * 6, y + 14, 1.6); }
+    g.restore();
   }
   private spawnMarker(side: Side, combat: boolean) {
     const g = this.ink, pulse = 0.45 + Math.sin(this.visualTime * 3) * 0.15;
