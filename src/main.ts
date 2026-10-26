@@ -5,6 +5,7 @@ import './menu.css';
 import { BASE, BASE_LEVELS, TOWERS, TOWER_KINDS, TOWER_GUIDE, ENEMIES, ENEMY_GUIDE, WAVES, constructionTime, type TowerKind, type EnemyKind, type Side } from './data';
 import { GameEngine, stats, upgradeCost, sellValue, type GameMode, type TestOption } from './engine';
 import { BoardScene, type Selection } from './scene';
+import { artIcon } from './art';
 
 const model = new GameEngine();
 model.paused = true;
@@ -29,35 +30,8 @@ const icon = (name: string, size = 20) => {
   };
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] ?? paths.target}</svg>`;
 };
-const towerArt = (kind: TowerKind) => {
-  const color = '#' + TOWERS[kind].color.toString(16).padStart(6, '0');
-  const weapon: Record<TowerKind, string> = {
-    rapid: '<path d="M31 30V7m10 23V7" stroke="#cbe4c1" stroke-width="5"/>',
-    cannon: '<path d="M36 31V7" stroke="#e3bb8e" stroke-width="12"/><path d="M29 8h14" stroke="#405e4b" stroke-width="3"/>',
-    frost: '<path d="m36 5 11 15-11 16-11-16Z" fill="#a6e6ed"/><path d="M36 10v21m-7-11h14" stroke="#467787" stroke-width="2"/>',
-    sniper: '<path d="M33 32V3m6 29V3" stroke="#eeb3a1" stroke-width="4"/><path d="M28 12h16" stroke="#4e665d" stroke-width="3"/>',
-    tesla: '<path d="M36 33V13" stroke="#bab3f0" stroke-width="8"/><ellipse cx="36" cy="18" rx="12" ry="5" fill="none" stroke="#bab3f0" stroke-width="4"/><path d="m39 2-9 10h9l-6 10" fill="none" stroke="#f4e6ff" stroke-width="3"/>',
-  };
-  return `<svg viewBox="0 0 72 72" aria-hidden="true"><ellipse cx="37" cy="54" rx="26" ry="10" fill="#203e3420"/><path d="m36 23 23 13v17L36 66 13 53V36Z" fill="#9daf9e"/><path d="m36 16 23 13v17L36 59 13 46V29Z" fill="#31594b"/><path d="m36 16 23 13-23 13-23-13Z" fill="#618370"/><circle cx="36" cy="32" r="13" fill="${color}"/>${weapon[kind]}<circle cx="36" cy="32" r="5" fill="#426c51"/></svg>`;
-};
-
-const enemyArt = (kind: EnemyKind) => {
-  const info = ENEMIES[kind], color = '#' + info.color.toString(16).padStart(6, '0');
-  const sides = kind === 'ranged' ? 4 : kind === 'runner' || kind === 'berserker' ? 3 : ['heavy', 'boss', 'armored'].includes(kind) ? 6 : 5;
-  const radius = Math.min(11, info.radius);
-  const points = Array.from({ length: sides }, (_, i) => {
-    const angle = i / sides * Math.PI * 2;
-    return `${16 + Math.cos(angle) * radius},${16 + Math.sin(angle) * radius}`;
-  }).join(' ');
-  const marks: Partial<Record<EnemyKind, string>> = {
-    armored: '<circle cx="16" cy="16" r="7" fill="none" stroke="#e1eef3"/><path d="M12 16h8" stroke="#e1eef3"/>',
-    medic: '<path d="M12 16h8m-4-4v8" stroke="#f2ffe0" stroke-width="3"/>',
-    ranged: '<circle cx="16" cy="16" r="2" fill="#ffe3f7"/>',
-    berserker: '<circle cx="16" cy="16" r="12" fill="none" stroke="#ff714f"/>',
-    boss: '<circle cx="16" cy="16" r="14" fill="none" stroke="#f2c7a2"/>',
-  };
-  return `<svg viewBox="0 0 32 32" aria-hidden="true"><polygon points="${points}" fill="${color}" stroke="#6a3f3c" stroke-width="1.6"/><path d="M16 16h${radius * .65}" stroke="#623c36" stroke-width="2"/>${marks[kind] ?? ''}</svg>`;
-};
+const towerArt = (kind: TowerKind) => artIcon(kind);
+const enemyArt = (kind: EnemyKind) => artIcon(kind);
 const enemyBadge = (kind: EnemyKind) => `<span class="enemy-badge" role="listitem" tabindex="0" data-enemy="${kind}" aria-label="${ENEMIES[kind].name}">${enemyArt(kind)}</span>`;
 const enemyArmor = (kind: EnemyKind) => { const info = ENEMIES[kind]; return 'armor' in info ? info.armor : 0; };
 
@@ -76,7 +50,6 @@ $('#app').innerHTML = `
         <div class="resource wave-resource"><span class="resource-icon">${icon('wave', 23)}</span><div><span class="resource-label">当前波次</span><strong id="wave-number">00 <small>/ 08</small></strong></div></div>
         <div class="resource kills-resource"><div><span class="resource-label">已击退</span><strong id="kill-count">0</strong></div></div>
       </div>
-          <div class="battle-toolbar"><div class="battle-title"><span class="live-dot"></span><span id="phase-label">部署阶段</span></div><span class="field-tag">开放地图 · 自由布防</span></div>
         <section class="arsenal"><div class="section-heading"><div><span class="eyebrow">BUILD YOUR DEFENSE</span><h2>构筑防线</h2></div><span class="count-tag">05</span></div><p class="section-intro">选择炮塔，在基地周围自由部署。</p>
           ${TOWER_KINDS.map((kind, i) => `<button class="tower-card" id="build-${kind}" data-kind="${kind}" aria-pressed="false"><span class="tower-art ${kind}">${towerArt(kind)}</span><span class="tower-copy"><span class="tower-name">${TOWERS[kind].name}<kbd>${i + 1}</kbd></span><span class="tower-type">${TOWERS[kind].caption}</span><span class="tower-meta">${TOWER_GUIDE[kind]}</span></span><span class="tower-price" id="price-${kind}">${icon('coin', 14)}${TOWERS[kind].cost}</span></button>`).join('')}
           <div class="selection-detail" id="selection-detail"></div>
@@ -124,6 +97,12 @@ $('#app').innerHTML = `
 
 // Keep details anchored to the viewport edge, independent of the build dock.
 $('#battle-hud').append($('#selection-detail'));
+const buildSidebar = document.createElement('div');
+buildSidebar.id = 'build-sidebar';
+buildSidebar.className = 'build-sidebar';
+buildSidebar.append($('.arsenal'), $('#test-panel'));
+$('.map-wrap').append(buildSidebar);
+$('#toggle-hud').setAttribute('aria-controls', 'battle-hud build-sidebar');
 let volume = 0;
 try { const saved = Number(localStorage.getItem('last-light-volume') ?? 0); if (Number.isFinite(saved)) volume = Math.max(0, Math.min(1, saved)); } catch { /* Storage may be unavailable in private browsing. */ }
 let lastAudibleVolume = volume || .5;
@@ -221,8 +200,6 @@ function renderUI() {
   $('#base-meter').classList.toggle('danger', model.baseHp < 120);
   const waveLabel = `${String(model.wave).padStart(2, '0')} <small>/ 08</small>`;
   if ($('#wave-number').innerHTML !== waveLabel) $('#wave-number').innerHTML = waveLabel;
-  $('#phase-label').textContent = finished ? model.phase === 'victory' ? '防守成功' : '基地失守' : model.paused ? '已暂停' : combat ? '战斗进行中' : `${model.wave ? '波间修整' : '首波准备'} · ${Math.ceil(model.preparationRemaining)} 秒`;
-  $('.live-dot').classList.toggle('combat', combat && !model.paused);
   if (model.wave > 0) $('#first-tip').hidden = true;
   $('#kill-count').textContent = String(model.kills);
   $('#pause-overlay').hidden = screen !== 'game' || !model.paused;

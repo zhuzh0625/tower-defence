@@ -123,7 +123,10 @@ test('fractional placement preserves exact coordinates and tests the complete fo
 
 test('body-aware navigation detours continuously and preserves narrow passages', () => {
   const target = { id: 'base', x: 700, y: 310, radius: 31 };
-  const rocks = [-110, -10, 90, 190, 250, ...Array.from({ length: Math.ceil((MAP_BOUNDS.bottom - 370) / 100) + 1 }, (_, i) => 370 + i * 100)].map((y, i) => ({ id: 'rock-' + i, x: 520, y, radius: 50 }));
+  // Extend both ends to the map edges so the 20-unit opening is the only route.
+  const upperWall = Array.from({ length: Math.ceil((190 - MAP_BOUNDS.top) / 100) + 1 }, (_, i) => 190 - i * 100);
+  const lowerWall = Array.from({ length: Math.ceil((MAP_BOUNDS.bottom - 370) / 100) + 1 }, (_, i) => 370 + i * 100);
+  const rocks = [...upperWall, 250, ...lowerWall].map((y, i) => ({ id: 'rock-' + i, x: 520, y, radius: 50 }));
   const navigator = new Navigator([target, ...rocks]);
   const start = { x: 360.5, y: 270.25 };
   const route = navigator.route(start, 7); assert.ok(route);

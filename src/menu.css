@@ -1,4 +1,4 @@
-.menu-backdrop .battle-hud, .menu-backdrop .field-controls, .menu-backdrop .first-tip, .menu-backdrop .test-panel { visibility: hidden; }
+.menu-backdrop .battle-hud, .menu-backdrop .field-controls, .menu-backdrop .first-tip, .menu-backdrop .build-sidebar { visibility: hidden; }
 .main-menu { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; overflow-y: auto; padding: 24px; background: radial-gradient(ellipse at 50% 35%, #284f3f99, #0c2522ed); backdrop-filter: blur(5px); }
 .menu-card { width: min(100%, 430px); padding: 30px 34px 20px; background: #f4f6e9f2; border: 1px solid #b8c5a8; border-radius: 18px; box-shadow: 0 24px 90px #071e2866; text-align: center; }
 .menu-emblem { display: grid; place-items: center; width: 62px; height: 62px; margin: 0 auto 18px; color: #d5e7c5; background: #315641; border-radius: 16px 16px 16px 4px; }
@@ -29,7 +29,7 @@
 .volume-label { display: flex; justify-content: space-between; margin: 28px 0 16px; font-size: 14px; }
 #volume { width: 100%; accent-color: #507146; cursor: pointer; }
 .volume-actions { display: flex; align-items: center; justify-content: space-between; margin: 18px 0; font-size: 11px; color: #7d8c70; }
-.test-panel { position: absolute; z-index: 7; top: 140px; left: 20px; width: 220px; max-height: calc(100dvh - 285px); overflow-y: auto; background: #eff3e4f5; border: 1px solid #afc294; border-radius: 10px; box-shadow: 0 8px 24px #0b251f33; font-size: 12px; }
+.test-panel { flex: 0 1 auto; min-height: 44px; max-height: calc(100% - 94px); overflow-y: auto; background: #eff3e4f5; border: 1px solid #afc294; border-radius: 10px; box-shadow: 0 8px 24px #0b251f33; font-size: 12px; }
 .test-panel summary { position: sticky; top: 0; z-index: 1; padding: 12px; cursor: pointer; font-weight: 600; color: #315641; background: #eff3e4; }
 .test-panel summary span { float: right; font-size: 10px; font-weight: 400; color: #81946d; }
 .test-body { padding: 0 12px 12px; }
@@ -47,7 +47,6 @@
   .main-menu { padding: 16px; }
   .menu-card { padding: 24px 22px 18px; }
   .menu-card h1 { font-size: 29px; }
-  .test-panel { top: auto; bottom: 184px; left: 12px; width: calc(100% - 24px); max-height: calc(100dvh - 320px); }
   .battlefield .field-controls { padding: 5px; gap: 0; }
   .battlefield .field-controls .control { padding-left: 4px; padding-right: 4px; font-size: 10px; }
   .battlefield .field-controls .icon-button { width: 26px; }
@@ -61,10 +60,4 @@
   .menu-options { gap: 7px; }
   .menu-options button { min-height: 54px; padding: 9px 12px; }
   .menu-footer { margin-top: 14px; }
-}
-@media (max-height: 540px) and (min-width: 541px) {
-  .test-panel { top: 100px; bottom: auto; left: 12px; width: 220px; max-height: max(52px, calc(100dvh - 230px)); }
-}
-@media (max-height: 540px) and (min-width: 541px) and (max-width: 740px) {
-  .test-panel { top: 148px; max-height: calc(100dvh - 160px); }
 }

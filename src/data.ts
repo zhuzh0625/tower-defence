@@ -1,6 +1,6 @@
 // All simulation distances are continuous world units (10 units = 1 metre).
-export const WIDTH = 1560;
-export const HEIGHT = 1080;
+export const WIDTH = 3120;
+export const HEIGHT = 2160;
 export const BASE = { id: 'base', x: 540, y: 380, radius: 31 };
 export const MAP_BOUNDS = { left: BASE.x - WIDTH / 2, right: BASE.x + WIDTH / 2, top: BASE.y - HEIGHT / 2, bottom: BASE.y + HEIGHT / 2 };
 export const SPAWN_WARNING = 0.8;
